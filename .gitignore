@@ -1,0 +1,6 @@
+/cmake-build-debug
+/.idea
+/build
+/.cache
+/.vs
+/out/build/x64-Debug
