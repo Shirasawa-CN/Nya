@@ -1,5 +1,5 @@
 ///===========================================================
-/// ∂®“Âlexerƒ£øÈ
+/// ÂÆö‰πâlexerÊ®°Âùó
 ///
 ///===========================================================
 #pragma once
@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <wchar.h>
 
 #define LONGEST_KEYWORD 10
 #define SHORTEST_KEYWORD 2
@@ -44,6 +45,7 @@ enum Tokens
   FSIZE,
   CHAR,
   NAME,
+  FN_NAME,
 
   STRUCT,
   ENUM,
@@ -92,7 +94,7 @@ void
 free_tokenGroup(tokenGroup group);
 
 tokenGroup
-makeTokenGroup(const char* filename);
+buildTokenGroup(const char* filename);
 
 int
 check(char* word, int len);

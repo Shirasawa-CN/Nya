@@ -3,4 +3,5 @@
 /build
 /.cache
 /.vs
-/out/build/x64-Debug
+/out
+/cmake-build-debug-mingw
