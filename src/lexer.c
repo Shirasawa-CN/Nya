@@ -27,12 +27,14 @@ fnNextChar(FILE* file, char word)
 }
 
 #define newTokenGroup                                                          \
-  G.tokenGroup = realloc(G.tokenGroup, sizeof(tokenStruct) * (G.length + 1));  \
+  tokenStruct* tmp =                                                            \
+    (tokenStruct*)realloc(G.tokenGroup, sizeof(tokenStruct) * (G.length + 1));  \
+  G.tokenGroup = tmp;                                                          \
                                                                                \
   G.tokenGroup[G.length].line = line;                                          \
   G.tokenGroup[G.length].length = 0;                                           \
   G.tokenGroup[G.length].type = 0;                                             \
-  G.tokenGroup[G.length].word = NULL;
+  G.tokenGroup[G.length].word = "NULL";
 
 #define endTokenGroup                                                          \
   if (length) {                                                                \
@@ -81,7 +83,7 @@ buildTokenGroup(const char* filename)
         endTokenGroup;
         newTokenGroup;
         G.tokenGroup[G.length].type = tmp_c;
-        free(G.tokenGroup[G.length++].word);
+        free(G.tokenGroup[G.length].word);
         break;
       case '/':
       case '{':
@@ -98,10 +100,11 @@ buildTokenGroup(const char* filename)
       default:
         if (word) {
           char* tmp = (char*)realloc(word, sizeof(char) * (length + 1));
-          if (tmp)
+          if (tmp) {
             word = tmp;
+            word[length++] = tmp_c;
+          }
         }
-        word[length++] = tmp_c;
     }
   }
 
@@ -114,6 +117,7 @@ inline void
 free_tokenGroup(tokenGroup group)
 {
   for (int i = 0; i < group.length; i++) {
+    group.tokenGroup[i].word = "CLEAN";
     free(group.tokenGroup[i].word);
   }
   free(group.tokenGroup);
