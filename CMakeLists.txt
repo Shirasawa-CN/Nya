@@ -1,9 +1,14 @@
-cmake_minimum_required(VERSION 3.24)
+cmake_minimum_required(VERSION 3.20)
 project(Nya VERSION 0.0.1 LANGUAGES C)
 message("==================================================================")
 message("C Standard: C17")
 
-#set(CMAKE_C_COMPILER clang)
+#windows clang
+#set(CMAKE_C_COMPILE "clang-cl")
+#unix gcc
+#set(CMAKE_C_COMPILE "gcc")
+#unix clang
+#set(CMAKE_C_COMPILE "clang")
 
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)

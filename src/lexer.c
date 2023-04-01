@@ -34,7 +34,7 @@ fnNextChar(FILE* file, char word)
   G.tokenGroup[G.length].line = line;                                          \
   G.tokenGroup[G.length].length = 0;                                           \
   G.tokenGroup[G.length].type = 0;                                             \
-  G.tokenGroup[G.length].word = "NULL";
+  G.tokenGroup[G.length].word = NULL;
 
 #define endTokenGroup                                                          \
   if (length) {                                                                \
