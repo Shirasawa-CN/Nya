@@ -94,7 +94,7 @@ void
 free_tokenGroup(tokenGroup group);
 
 tokenGroup
-buildTokenGroup(const char* filename);
+buildTokenGroup(FILE* file);
 
 int
 check(char* word, int len);

@@ -60,10 +60,9 @@ fnNextChar(FILE* file, char word)
   }
 
 inline tokenGroup
-buildTokenGroup(const char* filename)
+buildTokenGroup(FILE* file)
 {
   tokenGroup G = { (tokenStruct*)calloc(2, sizeof(tokenStruct)), 0, 0 };
-  FILE* file = fopen(filename, "r");
 
   unsigned int line = 0, length = 0;
   char* word = (char*)malloc(sizeof(char));
