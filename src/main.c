@@ -7,9 +7,9 @@
 int
 main(int argc, char** argv)
 {
-  FILE* src_file;
-  errno_t result_fopen_srcfile;
-  char* tmp = (char*)malloc(sizeof(argv) - 2);
+  errno_t result_fopen_src_file;
+  char* tmp = (char*)malloc(sizeof(argv));
+  tmp = "0";
   if (argc == 1) {
     CliInit();
     CliHelp();
@@ -20,18 +20,18 @@ main(int argc, char** argv)
     }else if (argv[0] == "-" && argv[1] == "O" || argv[1] == "o")
     {
       //提取地址
-      for (int i = 0; i >= sizeof(argv) - 2;i++)
+      for (int i = 0; i <= sizeof(argv) - 2;i++)
         tmp[i] = *argv[1 + i];
       
       //验证该文件存在且非空
-      result_fopen_srcfile = fopen_s(&src_file,tmp, "r");
-      if (result_fopen_srcfile && feof(src_file) != EOF){
+      FILE* src_file;
+      result_fopen_src_file = fopen_s(&src_file,tmp, "r");
+      if (result_fopen_src_file) {
         buildTokenGroup(src_file);
       }
-
+      free(src_file);
     }
     free(tmp);
-    free(src_file);
   }
   return (0);
 }

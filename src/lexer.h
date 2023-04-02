@@ -87,7 +87,7 @@ typedef struct
 {
   tokenStruct* tokenGroup;
   unsigned int length;
-  int painic;
+  int panic;
 } tokenGroup;
 
 void

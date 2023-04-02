@@ -59,7 +59,7 @@ fnNextChar(FILE* file, char word)
     word = (char*)calloc(2, sizeof(char));                                     \
   }
 
-inline tokenGroup
+extern inline tokenGroup
 buildTokenGroup(FILE* file)
 {
   tokenGroup G = { (tokenStruct*)calloc(2, sizeof(tokenStruct)), 0, 0 };
