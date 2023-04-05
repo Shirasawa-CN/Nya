@@ -1,8 +1,9 @@
-#pragma once
+#ifndef NYA_CLI_H
+#define NYA_CLI_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #define CliEND 0
 
@@ -14,3 +15,5 @@ CliInit();
 
 void
 CliHelp();
+
+#endif

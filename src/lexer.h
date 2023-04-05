@@ -2,12 +2,13 @@
 /// 定义lexer模块
 ///
 ///===========================================================
-#pragma once
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <wchar.h>
+#ifndef NYA_LEXER_H
+#define NYA_LEXER_H
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
 
 #define LONGEST_KEYWORD 10
 #define SHORTEST_KEYWORD 2
@@ -60,7 +61,7 @@ enum Tokens
 
 static const char* const Keywords[] = {
   "true",   "false",    "if",        "else",   "fn",     "while",
-  "break",  "contiune", "for",       "return", "use",    "match",
+  "break",  "continue", "for",       "return", "use",    "match",
 
   "&",      "|",        "^",
 
@@ -90,14 +91,50 @@ typedef struct
   int panic;
 } tokenGroup;
 
-void
-free_tokenGroup(tokenGroup group);
+#define newTokenGroup                                                          \
+  tokenStruct* tmp =                                                           \
+    (tokenStruct*)realloc(G.tokenGroup, sizeof(tokenStruct) * (G.length + 1)); \
+  G.tokenGroup = tmp;                                                          \
+                                                                               \
+  G.tokenGroup[G.length].line = line;                                          \
+  G.tokenGroup[G.length].length = 0;                                           \
+  G.tokenGroup[G.length].type = 0;                                             \
+  G.tokenGroup[G.length].word = NULL;
 
-tokenGroup
-buildTokenGroup(FILE* file);
+#define endTokenGroup                                                          \
+  if (length) {                                                                \
+    newTokenGroup;                                                             \
+    int i;                                                                     \
+    if ((i = check(word, length)) == NAME) {                                   \
+      if (G.tokenGroup[G.length].word) {                                       \
+        char* tmp = (char*)realloc(G.tokenGroup[G.length].word,                \
+                                   (length + 1) * sizeof(char));               \
+        if (tmp)                                                               \
+          G.tokenGroup[G.length].word = tmp;                                   \
+      }                                                                        \
+      memcpy(G.tokenGroup[G.length].word, word, length);                       \
+      G.tokenGroup[G.length].word[length++] = '\0';                            \
+      G.tokenGroup[G.length].length = length;                                  \
+      G.tokenGroup[G.length++].type = NAME;                                    \
+    } else {                                                                   \
+      G.tokenGroup[G.length].type = i;                                         \
+      free(G.tokenGroup[G.length++].word);                                     \
+    }                                                                          \
+    length = 0;                                                                \
+    word = (char*)calloc(2, sizeof(char));                                     \
+  }
 
-int
-check(char* word, int len);
+class lexer
+{
 
-void
-printTokenGroupInTest(tokenGroup group);
+  void free_tokenGroup(tokenGroup group);
+
+  int check(char* word, int len);
+
+public:
+  tokenGroup buildTokenGroup(FILE* file);
+
+  void printTokenGroupInTest(tokenGroup group);
+};
+
+#endif // NYA_LEXER_H
