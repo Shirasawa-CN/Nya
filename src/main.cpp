@@ -3,14 +3,16 @@
 #include <memory>
 #include <string>
 
-#include "lexer.h"
+#include "ast.h"
 #include "cli/cli.h"
+#include "error.h"
+#include "lexer.h"
 
 int
 main(int argc, char** argv)
 {
   errno_t result_fopen_src_file;
-  lexer* nyaLexer = new lexer;
+  std::unique_ptr<lexer> nyaLexer(new lexer);
   char* tmp = (char*)malloc(sizeof(char) * argc);
   if (argc == 1) {
     CliInit();
@@ -19,7 +21,7 @@ main(int argc, char** argv)
     CliInit();
     if (*argv == "-H" || *argv == "--help") {
       CliHelp();
-    } else if (argv[0] == "-" && argv[1] == "O" || argv[1] == "o") {
+    } else if (argv[0] == "-" && (argv[1] == "O" || argv[1] == "o")) {
       // 提取地址
       if (tmp) {
         for (size_t i = 0; strlen(*argv) - 2; i++)
@@ -29,13 +31,14 @@ main(int argc, char** argv)
         FILE* src_file;
         result_fopen_src_file = fopen_s(&src_file, tmp, "r");
         if (result_fopen_src_file) {
-          nyaLexer->buildTokenGroup(src_file);
+          nyaLexer->getToken(src_file);
         }
+        fclose(src_file);
         free(src_file);
       }
     }
     free(tmp);
   }
-  free(nyaLexer);
+  nyaLexer.reset();
   return (0);
 }

@@ -8,7 +8,7 @@
 
 #include <cstdio>
 #include <cstdlib>
-#include <cstring>
+#include <string>
 
 #define LONGEST_KEYWORD 10
 #define SHORTEST_KEYWORD 2
@@ -41,9 +41,7 @@ enum Tokens
   MUL,
   DIV,
 
-  USIZE,
-  ISIZE,
-  FSIZE,
+  NUMBER,
   CHAR,
   NAME,
   FN_NAME,
@@ -57,6 +55,10 @@ enum Tokens
   NAMESPACE,
   FREE,
   DROP,
+
+  N_EOF,
+  POINTER,
+  IDENTIFIER,
 };
 
 static const char* const Keywords[] = {
@@ -74,67 +76,21 @@ static const char* const Keywords[] = {
   "struct", "enum",     "union",
 
   "static", "const",    "namespace", "free",   "drop",
+
+  "EOF",
 };
 
-typedef struct
-{
-  char* word;
-  int type;
-  unsigned int length;
-  unsigned int line;
-} tokenStruct;
-
-typedef struct
-{
-  tokenStruct* tokenGroup;
-  unsigned int length;
-  int panic;
-} tokenGroup;
-
-#define newTokenGroup                                                          \
-  tokenStruct* tmp =                                                           \
-    (tokenStruct*)realloc(G.tokenGroup, sizeof(tokenStruct) * (G.length + 1)); \
-  G.tokenGroup = tmp;                                                          \
-                                                                               \
-  G.tokenGroup[G.length].line = line;                                          \
-  G.tokenGroup[G.length].length = 0;                                           \
-  G.tokenGroup[G.length].type = 0;                                             \
-  G.tokenGroup[G.length].word = NULL;
-
-#define endTokenGroup                                                          \
-  if (length) {                                                                \
-    newTokenGroup;                                                             \
-    int i;                                                                     \
-    if ((i = check(word, length)) == NAME) {                                   \
-      if (G.tokenGroup[G.length].word) {                                       \
-        char* tmp = (char*)realloc(G.tokenGroup[G.length].word,                \
-                                   (length + 1) * sizeof(char));               \
-        if (tmp)                                                               \
-          G.tokenGroup[G.length].word = tmp;                                   \
-      }                                                                        \
-      memcpy(G.tokenGroup[G.length].word, word, length);                       \
-      G.tokenGroup[G.length].word[length++] = '\0';                            \
-      G.tokenGroup[G.length].length = length;                                  \
-      G.tokenGroup[G.length++].type = NAME;                                    \
-    } else {                                                                   \
-      G.tokenGroup[G.length].type = i;                                         \
-      free(G.tokenGroup[G.length++].word);                                     \
-    }                                                                          \
-    length = 0;                                                                \
-    word = (char*)calloc(2, sizeof(char));                                     \
-  }
+static std::string IdentifierStr;
+static double NumVal;
+static fpos_t position;
 
 class lexer
 {
-
-  void free_tokenGroup(tokenGroup group);
-
+private:
   int check(char* word, int len);
 
 public:
-  tokenGroup buildTokenGroup(FILE* file);
-
-  void printTokenGroupInTest(tokenGroup group);
+  int getToken(FILE* file);
 };
 
 #endif // NYA_LEXER_H

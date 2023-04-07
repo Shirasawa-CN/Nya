@@ -5,82 +5,93 @@
 
 #include "lexer.h"
 
-void
-lexer::free_tokenGroup(tokenGroup group)
-{
-  for (int i = 0; i < group.length; i++) {
-    *group.tokenGroup[i].word = 'C';
-    free(group.tokenGroup[i].word);
-  }
-  free(group.tokenGroup);
-}
-
 int
 lexer::check(char* word, int len)
 {
   return 0;
 }
 
-void
-lexer::printTokenGroupInTest(tokenGroup group)
+int
+lexer::getToken(FILE* file)
 {
-  for (unsigned int i = 0; i < group.length; i++) {
-    printf("{ type = %d word length = %d line = %d word=%s } \n",
-           group.tokenGroup[i].type,
-           group.tokenGroup[i].length,
-           group.tokenGroup[i].line,
-           group.tokenGroup[i].word);
+  fsetpos(file, &position);
+  static int LastChar = ' ';
+
+  // Skip any whitespace.
+  while (isspace(LastChar))
+    LastChar = fgetc(file);
+
+  if (isalpha(LastChar)) {
+    IdentifierStr = LastChar;
+    while (isalnum((LastChar = fgetc(file))))
+      IdentifierStr += LastChar;
+    if (IdentifierStr == Keywords[0]) {
+      fgetpos(file, &position);
+      return Tokens::TRUE;
+    }
+
+    if (IdentifierStr == Keywords[1]) {
+      fgetpos(file, &position);
+      return Tokens::FALSE;
+    }
+
+    if (IdentifierStr == Keywords[2]) {
+      fgetpos(file, &position);
+      return Tokens::IF;
+    }
+
+    if (IdentifierStr == Keywords[3]) {
+      fgetpos(file, &position);
+      return Tokens::FALSE;
+    }
+
+    if (IdentifierStr == Keywords[4]) {
+      fgetpos(file, &position);
+      return Tokens::FN;
+    }
+
+    if (IdentifierStr == Keywords[5]) {
+      fgetpos(file, &position);
+      return Tokens::WHILE;
+    }
+
+    if (IdentifierStr == Keywords[6]) {
+      fgetpos(file, &position);
+      return Tokens::BREAK;
+    }
+
+    fgetpos(file, &position);
+    return Tokens::IDENTIFIER;
   }
-}
+  if (isdigit(LastChar) || LastChar == '.') {
+    std::string NumStr;
+    do {
+      NumStr += LastChar;
+      LastChar = fgetc(file);
+    } while (isdigit(LastChar) || LastChar == '.');
 
-tokenGroup
-lexer::buildTokenGroup(FILE* file)
-{
-  tokenGroup G = { (tokenStruct*)malloc(2 * sizeof(tokenStruct)), 0, 0 };
+    NumVal = strtod(NumStr.c_str(), nullptr);
+    fgetpos(file, &position);
+    return Tokens::NUMBER;
+  }
+  if (LastChar == '#') {
+    // Comment until end of line.
+    do
+      LastChar = fgetc(file);
+    while (LastChar != EOF && LastChar != '\n' && LastChar != '\r');
 
-  unsigned int line = 0, length = 0;
-  char* word = (char*)malloc(sizeof(char));
-
-  char tmp_c;
-
-  while ((tmp_c = fgetc(file)) != EOF) {
-    endTokenGroup;
-    newTokenGroup;
-    switch (tmp_c) {
-      case '=':
-      case '!':
-      case ';':
-      case '&':
-      case '|':
-      case '+':
-      case '-':
-      case '*':
-        G.tokenGroup[G.length].type = tmp_c;
-        free(G.tokenGroup[G.length].word);
-        break;
-      case '/':
-      case '{':
-      case '}':
-      case '(':
-      case ')':
-      case '[':
-      case ']':
-      case '#':
-      case '@':
-      case '^':
-        /// ~ 可以释放内存
-      case '~':
-      default:
-        if (word) {
-          char* tmp = (char*)realloc(word, sizeof(char) * (length + 1));
-          if (tmp) {
-            word = tmp;
-            word[length++] = tmp_c;
-          }
-        }
+    if (LastChar != EOF) {
+      fgetpos(file, &position);
+      return getToken(file);
     }
   }
-  free(word);
-  fclose(file);
-  return G;
+  if (LastChar == EOF) {
+    fgetpos(file, &position);
+    return Tokens::N_EOF;
+  }
+
+  int ThisChar = LastChar;
+  LastChar = fgetc(file);
+  fgetpos(file, &position);
+  return ThisChar;
 }
